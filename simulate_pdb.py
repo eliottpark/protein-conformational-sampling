@@ -81,7 +81,11 @@ if __name__ == "__main__":
     else:
         step_size = 0.002
     if len(sys.argv) > 5:
-        output_file = sys.argv[5]
+        recording_step_interval = sys.argv[5]
+    else:
+        recording_step_interval = 10000
+    if len(sys.argv) > 6:
+        output_file = sys.argv[6]
     else:
         output_file = None
     # p = Process(
@@ -93,4 +97,4 @@ if __name__ == "__main__":
     # # Now p.pid is the child’s OS process ID
     # print(f"Launched simulation in subprocess PID {p.pid}")
     # exit()
-    main(input_file, time_length, temperature, step_size, output_file)
+    main(input_file, time_length, temperature, step_size, recording_step_interval, output_file)
