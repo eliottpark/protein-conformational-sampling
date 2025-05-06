@@ -11,7 +11,9 @@ from multiprocessing import Process
 def main(input_file, time_length=20, temperature=300, step_size=0.002, output_file=None):
     # Create new subfolder
     file_name = os.path.splitext(os.path.basename(input_file))[0]
-    folder_name = os.path.join(os.getcwd(), file_name + datetime.datetime.now().strftime("_%Y%m%d_%H%M%S"))
+    if not os.path.exists('runs'):
+        os.makedirs('runs')
+    folder_name = os.path.join(os.getcwd(), + 'runs' + file_name + datetime.datetime.now().strftime("_%Y%m%d_%H%M%S"))
     if not os.path.exists(folder_name):
         os.makedirs(folder_name) 
     # Copy input file to new folder
@@ -66,12 +68,13 @@ if __name__ == "__main__":
         output_file = sys.argv[5]
     else:
         output_file = None
-    p = Process(
-        target=main,
-        args=(input_file, time_length, temperature, step_size, output_file),
-        daemon=False
-    )
-    p.start()
-    # Now p.pid is the child’s OS process ID
-    print(f"Launched simulation in subprocess PID {p.pid}")
-    exit()
+    # p = Process(
+    #     target=main,
+    #     args=(input_file, time_length, temperature, step_size, output_file),
+    #     daemon=False
+    # )
+    # p.start()
+    # # Now p.pid is the child’s OS process ID
+    # print(f"Launched simulation in subprocess PID {p.pid}")
+    # exit()
+    main(input_file, time_length, temperature, step_size, output_file)
