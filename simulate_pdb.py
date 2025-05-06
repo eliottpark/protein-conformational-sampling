@@ -13,12 +13,13 @@ def main(input_file, time_length=20, temperature=300, step_size=0.002, output_fi
     file_name = os.path.splitext(os.path.basename(input_file))[0]
     if not os.path.exists('runs'):
         os.makedirs('runs')
-    folder_name = os.path.join(os.getcwd(), + 'runs' + file_name + datetime.datetime.now().strftime("_%Y%m%d_%H%M%S"))
+    folder_name = os.path.join(os.getcwd(), 'runs', file_name + datetime.datetime.now().strftime("_%Y%m%d_%H%M%S"))
     if not os.path.exists(folder_name):
         os.makedirs(folder_name) 
     # Copy input file to new folder
     new_input_file = os.path.join(folder_name, os.path.basename(input_file))
     shutil.copyfile(input_file, new_input_file)
+    input_file = new_input_file
     os.chdir(folder_name)
     # Create new log file
     if os.path.exists('state.log'):
