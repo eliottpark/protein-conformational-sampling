@@ -8,7 +8,7 @@ import datetime
 from multiprocessing import Process
 
 
-def main(input_file, time_length=20, temperature=300, step_size=0.002, output_file=None):
+def main(input_file, time_length=20, temperature=300, step_size=0.002, recording_step_interval=10000, output_file=None):
     # Create new subfolder
     file_name = os.path.splitext(os.path.basename(input_file))[0]
     if not os.path.exists('runs'):
@@ -35,6 +35,13 @@ def main(input_file, time_length=20, temperature=300, step_size=0.002, output_fi
         os.remove(output_trajectory)
     
     num_steps = float(time_length) * 1000 / step_size # convert ns to ps
+    print(f"Running simulation for {num_steps} steps")
+    print(f"Simulation time length: {time_length} ns")
+    print(f"Temperature: {temperature} K")
+    print(f"Step size: {step_size} ps")
+    print(f"Output file: {output_file}")
+    print(f"Output trajectory file: {output_trajectory}")
+    print(f"Recording step interval: {recording_step_interval}")
     
     
     pdb = PDBFile(input_file)
@@ -48,10 +55,10 @@ def main(input_file, time_length=20, temperature=300, step_size=0.002, output_fi
     simulation.context.setPositions(pdb.positions)
     simulation.minimizeEnergy()
     
-    simulation.reporters.append(PDBReporter(output_file, 10000))
-    simulation.reporters.append(StateDataReporter(log, 10000, step=True,
+    simulation.reporters.append(PDBReporter(output_file, recording_step_interval))
+    simulation.reporters.append(StateDataReporter(log, recording_step_interval, step=True,
             potentialEnergy=True, temperature=True))
-    simulation.reporters.append(NetCDFReporter(output_trajectory, 1000,
+    simulation.reporters.append(NetCDFReporter(output_trajectory, recording_step_interval,
                                           enforcePeriodicBox=True,
                                           coordinates=True,
                                           velocities=True))
