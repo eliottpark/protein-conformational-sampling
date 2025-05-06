@@ -63,6 +63,7 @@ def main(input_file, time_length=20, temperature=300, step_size=0.002, recording
     #                                       enforcePeriodicBox=True,
     #                                       coordinates=True,
     #                                       velocities=True))
+    print("Running on OpenMM platform:", simulation.context.getPlatform())
     simulation.step(num_steps)
     log.close()
 
