@@ -30,6 +30,9 @@ def main(input_file, time_length=20, temperature=300, step_size=0.002, output_fi
         output_file = new_input_file.replace('.pdb', '_output.pdb')
     if os.path.exists(output_file):
         os.remove(output_file)
+    output_trajectory = output_file.replace('.pdb', '_trajectory.nc')
+    if os.path.exists(output_trajectory):
+        os.remove(output_trajectory)
     
     num_steps = float(time_length) * 1000 / step_size # convert ns to ps
     
@@ -45,9 +48,13 @@ def main(input_file, time_length=20, temperature=300, step_size=0.002, output_fi
     simulation.context.setPositions(pdb.positions)
     simulation.minimizeEnergy()
     
-    simulation.reporters.append(PDBReporter(output_file, 1000))
-    simulation.reporters.append(StateDataReporter(log, 1000, step=True,
+    simulation.reporters.append(PDBReporter(output_file, 10000))
+    simulation.reporters.append(StateDataReporter(log, 10000, step=True,
             potentialEnergy=True, temperature=True))
+    simulation.reporters.append(NetCDFReporter(output_trajectory, 1000,
+                                          enforcePeriodicBox=True,
+                                          coordinates=True,
+                                          velocities=True))
     simulation.step(num_steps)
     log.close()
 
