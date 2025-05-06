@@ -30,7 +30,7 @@ def main(input_file, time_length=20, temperature=300, step_size=0.002, recording
         output_file = new_input_file.replace('.pdb', '_output.pdb')
     if os.path.exists(output_file):
         os.remove(output_file)
-    output_trajectory = output_file.replace('.pdb', '_trajectory.nc')
+    output_trajectory = output_file.replace('.pdb', '_trajectory.dcd')
     if os.path.exists(output_trajectory):
         os.remove(output_trajectory)
     
@@ -58,10 +58,11 @@ def main(input_file, time_length=20, temperature=300, step_size=0.002, recording
     simulation.reporters.append(PDBReporter(output_file, recording_step_interval))
     simulation.reporters.append(StateDataReporter(log, recording_step_interval, step=True,
             potentialEnergy=True, temperature=True))
-    simulation.reporters.append(NetCDFReporter(output_trajectory, recording_step_interval,
-                                          enforcePeriodicBox=True,
-                                          coordinates=True,
-                                          velocities=True))
+    simulation.reporters.append(DCDReporter(output_trajectory, recording_step_interval))
+    # simulation.reporters.append(NetCDFReporter(output_trajectory, recording_step_interval,
+    #                                       enforcePeriodicBox=True,
+    #                                       coordinates=True,
+    #                                       velocities=True))
     simulation.step(num_steps)
     log.close()
 
