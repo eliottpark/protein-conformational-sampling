@@ -2,14 +2,35 @@ from openmm.app import *
 from openmm import *
 from simtk.unit import *
 import sys
+import os
+import shutil
+import datetime
+from threading import Thread
 
 
 def main(input_file, time_length=20, temperature=300, step_size=0.002, output_file=None):
+    # Create new subfolder
+    file_name = os.path.splitext(os.path.basename(input_file))[0]
+    folder_name = os.path.join(os.getcwd(), file_name + datetime.datetime.now().strftime("_%Y%m%d_%H%M%S"))
+    if not os.path.exists(folder_name):
+        os.makedirs(folder_name)
+    os.chdir(folder_name)
+    # Create new log file
+    if os.path.exists('state.log'):
+        os.remove('state.log')
     log = open('state.log', 'w')
+    # Copy input file to new folder
+    new_input_file = os.path.join(folder_name, os.path.basename(input_file))
+    shutil.copyfile(input_file, new_input_file)
+    # Create new output file
+    if output_file is None:
+        output_file = new_input_file.replace('.pdb', '_output.pdb')
+    if os.path.exists(output_file):
+        os.remove(output_file)
+    
     num_steps = float(time_length) * 1000 / step_size # convert ns to ps
     
-    if output_file is None:
-        output_file = input_file.replace('.pdb', '_output.pdb')
+    
     pdb = PDBFile(input_file)
     forcefield = ForceField("amber/protein.ff14SB.xml", "tip3p.xml") 
     # forcefield = ForceField('amber99sb.xml', 'tip3p.xml')
@@ -26,8 +47,8 @@ def main(input_file, time_length=20, temperature=300, step_size=0.002, output_fi
             potentialEnergy=True, temperature=True))
     simulation.step(num_steps)
     log.close()
-    
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     input_file = sys.argv[1]
     if len(sys.argv) > 2:
         time_length = sys.argv[2] # nanoseconds
@@ -45,5 +66,11 @@ if __name__ == '__main__':
         output_file = sys.argv[5]
     else:
         output_file = None
-    
-    main(input_file, time_length, temperature, step_size, output_file) 
+    # …parse arguments…
+    t = Thread(
+        target=main,
+        args=(input_file, time_length, temperature, step_size, output_file),
+        daemon=False
+    )
+    t.start()
+    print("Simulation launched in background thread; main program can continue here.")
